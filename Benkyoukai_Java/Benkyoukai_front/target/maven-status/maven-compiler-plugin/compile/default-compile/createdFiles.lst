@@ -1,0 +1,6 @@
+com\yuki\Controller\UserFavoriteController.class
+com\yuki\Controller\ArticleController.class
+com\yuki\FrontApplication.class
+com\yuki\Config\WebConfig.class
+com\yuki\Controller\AccountController.class
+com\yuki\Controller\LoginController.class

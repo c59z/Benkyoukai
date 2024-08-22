@@ -1,0 +1,31 @@
+/*#Main * {*/
+/*    !*transition: background-color 0.5s, color 0.5s;*!*/
+/*    transition: background-color 0.5s, color 0.5s,opacity 0.5s;*/
+/*}*/
+
+.day-mode {
+    background-color: #f5f6f7;
+    color: black;!important;
+}
+
+.day-mode h1 {
+    color: black;
+}
+
+.night-mode {
+    background-color: #292a2d;
+    color: white;!important;
+}
+
+.night-mode .offcanvas {
+    background-color: black;
+    color: white;!important;
+}
+
+.night-mode .article-info {
+    background-color: #3f4041 !important;
+}
+
+
+
+
