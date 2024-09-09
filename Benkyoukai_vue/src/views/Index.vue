@@ -2,7 +2,7 @@
   <div id="index">
     <MainSearchBar></MainSearchBar>
     <div id="articlesContent">
-<!--      <RandomRecommend v-show="!this.searchText"></RandomRecommend>-->
+      <RandomRecommend v-show="!this.searchText"></RandomRecommend>
       <div v-show="this.searchText" class="alert alert-secondary" role="alert">
         搜索到相关文章:
       </div>
