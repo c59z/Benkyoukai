@@ -9,12 +9,12 @@ import com.yuki.Mapper.ArticleMapper;
 import com.yuki.Mapper.UserMapper;
 import com.yuki.Service.ArticleService;
 import com.yuki.Utils.FileUtil;
+import com.yuki.Utils.RedisCache;
 import com.yuki.Utils.UserUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -38,6 +38,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    private RedisCache redisCache;
+
     @Override
     public List<Article> getAllArticles() {
         return articleMapper.getAllArticles();
@@ -45,7 +48,30 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleVo> getRandomRecommend() {
-        return articleMapper.getRandomRecommend();
+//        return articleMapper.getRandomRecommend();
+        // 1.查看redis数据库中RandomRecommend字段是否存在
+        String redisKey = "RandomRecommend";
+        List<ArticleVo> articleVoList = redisCache.getCacheList(redisKey);
+        // 2.如果存在直接从数据库中获取四篇文章
+        if(!Objects.isNull(articleVoList)){
+            return articleVoList;
+        }
+        // 3.如果不存在,从数据库中获取所有的id List<Integer>
+        List<Integer> idList = articleMapper.getAllId();
+        // 4.根据id随机选取4个值,组合成新的Vo
+        int count = 0;
+        articleVoList = new ArrayList<>();
+        while (count < 4){
+            Random random = new Random();
+            int randomIndex = random.nextInt(idList.size()); // 获取随机的id
+            ArticleVo articleVo = articleMapper.getArticleById(idList.get(randomIndex));
+            articleVoList.add(articleVo);
+            idList.remove(randomIndex);
+            count++;
+        }
+        // 5.把数据放到redis中
+        redisCache.setCacheList(redisKey,articleVoList);
+        return articleVoList;
     }
 
     @Override
@@ -409,7 +435,7 @@ public class ArticleServiceImpl implements ArticleService {
             User user = userMapper.getUser(currentUserName);
             userId = user.getId();
         }catch (Exception e){
-            return ResponseResult.errorResult(400,"未知错误");
+            return ResponseResult.errorResult(400,"error");
         }
 
         Articlelike articleLike = articleMapper.getArticleLike(userId,articleId);
