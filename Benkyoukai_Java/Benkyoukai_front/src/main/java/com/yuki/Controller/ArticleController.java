@@ -35,15 +35,15 @@ public class ArticleController {
         return articleService.getArticleCount();
     }
 
-//    /**
-//     * 获取随机推荐
-//     * @return
-//     */
-//    @GetMapping("/randomRecommend")
-//    public ResponseResult getRandomRecommend(){
-//        List<ArticleVo> articles =  articleService.getRandomRecommend();
-//        return ResponseResult.okResult(200,"获取每日推荐成功",articles);
-//    }
+    /**
+     * 获取随机推荐
+     * @return
+     */
+    @GetMapping("/randomRecommend")
+    public ResponseResult getRandomRecommend(){
+        List<ArticleVo> articles =  articleService.getRandomRecommend();
+        return ResponseResult.okResult(200,"获取每日推荐成功",articles);
+    }
 
 
     /**

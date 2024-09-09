@@ -65,4 +65,8 @@ public interface ArticleMapper {
     Long getArticleCount();
 
     List<ArticleVo> getArticlesByKeyWord(String kw);
+
+    List<Integer> getAllId();
+
+    ArticleVo getArticleById(int randomIndex);
 }
