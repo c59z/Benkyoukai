@@ -75,6 +75,9 @@ public class ResponseResult<T> implements Serializable {
         return okResult(enums.getCode(),msg);
     }
 
+    public static ResponseResult errorResult(int i, String s, String message) {
+        return null;
+    }
 
 
     public ResponseResult<?> error(Integer code, String msg) {

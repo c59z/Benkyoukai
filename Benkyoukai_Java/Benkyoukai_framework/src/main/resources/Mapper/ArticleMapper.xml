@@ -272,6 +272,10 @@
         where
             a.id = #{randomIndex}
     </select>
+    <select id="getUserIdByArticleId" resultType="java.lang.Long">
+        select create_by from article where id = #{id}
+and del_flag = 0 and status = 1
+    </select>
 
 
 </mapper>

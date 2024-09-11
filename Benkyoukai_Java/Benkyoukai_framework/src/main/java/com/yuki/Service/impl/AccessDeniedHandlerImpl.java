@@ -20,6 +20,5 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         ResponseResult result = new ResponseResult(HttpStatus.FORBIDDEN.value(),accessDeniedException.getMessage() );
         String json = JSON.toJSONString(result);
         WebUtils.renderString(response,json);
-
     }
 }

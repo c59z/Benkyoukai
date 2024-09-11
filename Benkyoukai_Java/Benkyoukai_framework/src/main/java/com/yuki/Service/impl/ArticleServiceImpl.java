@@ -6,6 +6,7 @@ import com.yuki.Domain.Entity.Vo.CommentVo;
 import com.yuki.Domain.Entity.dto.PostedArticle;
 import com.yuki.Domain.ResponseResult;
 import com.yuki.Mapper.ArticleMapper;
+import com.yuki.Mapper.NotificationMapper;
 import com.yuki.Mapper.UserMapper;
 import com.yuki.Service.ArticleService;
 import com.yuki.Utils.FileUtil;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +39,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    NotificationMapper notificationMapper;
 
     @Autowired
     private RedisCache redisCache;
@@ -209,6 +214,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         String currentUserName = UserUtil.getCurrentUser();
         User user = userMapper.getUser(currentUserName);
+        String currentUsername = user.getUsername();
         Long userId = user.getId();
         Articlelike articlelike = articleMapper.getArticleLike(userId,id);
         ResponseResult result = new ResponseResult();
@@ -220,11 +226,13 @@ public class ArticleServiceImpl implements ArticleService {
                 boolean b = articleMapper.insertArticleLike(userId,id,date);
                 if(b){
                     result = ResponseResult.okResult(200,"点赞成功!",1);
+                    // 插入一条消息
+                    saveNotification(id,userId,currentUsername);
                 }else{
                     result = ResponseResult.okResult(400,"点赞失败",0);
                 }
             }catch (Exception e){
-                result = ResponseResult.errorResult(400, "重复点赞，操作失败");
+                result = ResponseResult.errorResult(400,e.getMessage());
             }
         }else{
             int st = Integer.parseInt(articlelike.getState());
@@ -232,6 +240,7 @@ public class ArticleServiceImpl implements ArticleService {
                 // 用户给这个文章点过赞，取消点赞
                 boolean b = articleMapper.updateArticleLikeState(userId,id,0L);
                 if(b){
+                    updateNotification(id,userId,currentUsername,"0");
                     result = ResponseResult.okResult(200,"取消点赞成功!",0);
                 }else{
                     result = ResponseResult.okResult(400,"取消点赞失败",1);
@@ -239,6 +248,7 @@ public class ArticleServiceImpl implements ArticleService {
             }else{
                 boolean b = articleMapper.updateArticleLikeState(userId,id,1L);
                 if(b){
+                    updateNotification(id,userId,currentUsername,"1");
                     result = ResponseResult.okResult(200,"点赞成功!",1);
                 }else{
                     result = ResponseResult.okResult(400,"点赞失败",0);
@@ -251,6 +261,57 @@ public class ArticleServiceImpl implements ArticleService {
 
         return result;
 
+    }
+
+    /**
+     *
+     * @param id 文章id
+     * @param currentUserId 当前用户的id
+     * @param currentUsername 当前用户的用户名
+     * @return
+     */
+    private boolean saveNotification(Long id,Long currentUserId,String currentUsername){
+        Date date = new Date();
+        // 获取文章的作者
+        Long targetUserId = articleMapper.getUserIdByArticleId(id);
+        Article articleDetail = articleMapper.getArticleDetail(id);
+        System.out.println(currentUserId);
+        System.out.println(targetUserId);
+        // 点赞的人和文章作者相同不发送消息
+        if(currentUserId.equals(targetUserId)){
+            return false;
+        }
+
+        // 插入一条通知
+        NotificationArticle notification = new NotificationArticle();
+        notification.setCreateTime(date);
+        notification.setUserId(currentUserId);
+        notification.setTargetUserId(targetUserId);
+        notification.setArticleId(id);
+        notification.setMassage(currentUsername+" 给你的文章["+articleDetail.getTitle()+"]点赞了");
+        return notificationMapper.saveNotification(notification);
+    }
+
+    private boolean updateNotification(Long id,Long currentUserId,String currentUsername,String state){
+        Date date = new Date();
+        // 获取文章的作者
+        Long targetUserId = articleMapper.getUserIdByArticleId(id);
+        Article articleDetail = articleMapper.getArticleDetail(id);
+        // 点赞的人和文章作者相同不发送消息
+        if(Objects.equals(currentUserId, targetUserId)){
+            return false;
+        }
+        // 插入一条通知
+        NotificationArticle notification = new NotificationArticle();
+        notification.setCreateTime(date);
+        notification.setUserId(currentUserId);
+        notification.setTargetUserId(targetUserId);
+        notification.setArticleId(id);
+        notification.setState(state);
+        if(state.equals("1")){
+            notification.setMassage(currentUsername+" 给你的文章["+articleDetail.getTitle()+"]点赞了");
+        }
+        return notificationMapper.updateNotification(notification);
     }
 
     @Override

@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/Benkyoukai_framework/src/main/resources/Mapper/AccountMapper.xml" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/Benkyoukai_framework/src/main/resources/Mapper/ArticleMapper.xml" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/Benkyoukai_framework/src/main/resources/Mapper/NotificationMapper.xml" dialect="MySQL" />
   </component>
 </project>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yuki.Mapper.NotificationMapper">
+    <insert id="saveNotification">
+        insert into
+            notificationarticle(user_id,target_user_id,article_id,message,create_time)
+        values(#{userId},#{targetUserId},#{articleId},#{massage},#{createTime})
+
+
+    </insert>
+    <update id="updateNotification">
+        update notificationarticle
+        set state = #{state}
+        where user_id = #{userId}
+and target_user_id = #{targetUserId}
+and article_id = #{articleId}
+    </update>
+    <select id="getCountByTargetUserId" resultType="java.lang.Long">
+        select count(id) from notificationarticle
+        where target_user_id = #{targetUserId} and state = 1
+    </select>
+    <select id="getNotificationByUser" resultType="com.yuki.Domain.Entity.Vo.NotificationArticleVo">
+        select * from notificationarticle
+        where target_user_id = #{userId}
+        and state = 1
+        order by id desc
+        limit
+            #{pageSize}
+        offset
+            #{offset}
+    </select>
+    <select id="getUnreadNotificationByUser" resultType="com.yuki.Domain.Entity.Vo.NotificationArticleVo">
+        select * from notificationarticle
+        where target_user_id = #{userId}
+          and state = 1
+          and is_read = 0
+        order by id desc
+        limit
+            #{pageSize}
+            offset
+            #{offset}
+    </select>
+    <select id="getNotificationCountByUser" resultType="java.lang.Integer">
+        select count(id) from notificationarticle
+        where target_user_id = #{userId}
+          and state = 1
+    </select>
+    <select id="getUnreadNotificationCountByUser" resultType="java.lang.Integer">
+        select count(id) from notificationarticle
+        where target_user_id = #{userId}
+          and state = 1
+          and is_read = 0
+    </select>
+</mapper>

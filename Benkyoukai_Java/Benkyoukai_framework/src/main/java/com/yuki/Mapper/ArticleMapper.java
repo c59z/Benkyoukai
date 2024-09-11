@@ -69,4 +69,6 @@ public interface ArticleMapper {
     List<Integer> getAllId();
 
     ArticleVo getArticleById(int randomIndex);
+
+    Long getUserIdByArticleId(Long id);
 }
