@@ -30,7 +30,7 @@ public class NotificationController {
         if(page <= 0){
             page = 1;
         }
-        int pageSize = 5;
+        int pageSize = 10;
         String currentUser = UserUtil.getCurrentUser();
         User user = userService.getUser(currentUser);
         Long userId = user.getId();

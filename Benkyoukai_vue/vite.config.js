@@ -22,7 +22,13 @@ export default defineConfig({
                 rewrite: (path) => {
                     return path.replace(/\/api/, '')
                 }
-            }
+            },
+            '/sse': {
+                target: 'http://localhost:7777',
+                changeOrigin: true,
+                secure: false, // 忽略 https 证书校验
+                pathRewrite: { '^/sse': '/sse' }
+            },
         }
     }
 

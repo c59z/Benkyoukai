@@ -48,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/article/{id}/viewed",
                 "/article/Count",
                 "/article/select**",
+                "/sse/**",
         };
         http
                 //关闭csrf

@@ -163,6 +163,19 @@
       </div>
     </div>
 
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="liveToast" class="toast bg-dark" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">消息中心</strong>
+<!--          <small>11 mins ago</small>-->
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          {{this.currentNotification}}
+        </div>
+      </div>
+    </div>
+
     <!-- UserInfo -->
     <!--    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">-->
     <!--      <div class="offcanvas-header">-->
@@ -180,19 +193,21 @@
 <script>
 import request from "../../js/request.js";
 
+
 export default {
   name: "Header",
   data() {
     return {
       mode: this.$store.state.mode, //  'night-mode'
       userId: this.$store.state.userId,
+      token: this.$store.state.token,
       notificationCount: 0,
       notificationList: [
 
       ],
       totalPages: 0,
       currentPage: 1,
-
+      currentNotification: "",
     };
   },
   methods: {
@@ -211,7 +226,7 @@ export default {
       if(this.userId !== undefined && this.userId !== null){
         request.get("/notification/get?page="+page).then(res => {
           if(res.code === 200){
-            console.log(res.data)
+            // console.log(res.data)
             this.notificationList = res.data.list
             this.totalPages = res.data.totalPages
             this.currentPage = page
@@ -219,11 +234,33 @@ export default {
         })
       }
     },
+    initSSE(){
+
+
+      const eventSource = new EventSource(`/sse/subscribe?token=${this.token}`)
+      console.log("SSE连接完毕")
+      // console.log(this.token)
+      eventSource.onmessage = (event) => {
+        // todo 弹出消息通知
+        this.currentNotification = event.data
+        const toastLive = document.getElementById('liveToast')
+        const toast = new bootstrap.Toast(toastLive)
+        toast.show()
+      };
+
+      eventSource.onerror = (event) => {
+        console.log("SSE connect error",event)
+        eventSource.close()
+      }
+    }
   },
   mounted() {
     this.$i18n.locale = this.$store.state.locale;
     this.mode = 'night-mode'
     this.getNotification(1)
+    if(this.userId !== undefined && this.userId !== null){
+      this.initSSE()
+    }
   }
 }
 
@@ -268,6 +305,7 @@ a {
   height: 50vh;
   overflow-y: scroll;
   overflow-x: hidden;
+  margin-bottom: 1rem;
 }
 
 /* 垂直滚动条样式 */
@@ -296,6 +334,7 @@ a {
 .page-select {
   list-style: none;
   text-align: left;
+  margin-bottom: 1rem;
 }
 
 .page-select > .dropdown-menu {

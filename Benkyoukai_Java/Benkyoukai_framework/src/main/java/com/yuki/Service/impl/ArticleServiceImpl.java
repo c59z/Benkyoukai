@@ -1,5 +1,6 @@
 package com.yuki.Service.impl;
 
+import com.yuki.Controller.SSEController;
 import com.yuki.Domain.Entity.*;
 import com.yuki.Domain.Entity.Vo.ArticleVo;
 import com.yuki.Domain.Entity.Vo.CommentVo;
@@ -42,6 +43,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired
     NotificationMapper notificationMapper;
+
+    @Autowired
+    SSEController sseController;
 
     @Autowired
     private RedisCache redisCache;
@@ -227,7 +231,7 @@ public class ArticleServiceImpl implements ArticleService {
                 if(b){
                     result = ResponseResult.okResult(200,"点赞成功!",1);
                     // 插入一条消息
-                    saveNotification(id,userId,currentUsername);
+                    saveNotification(id, userId, currentUsername);
                 }else{
                     result = ResponseResult.okResult(400,"点赞失败",0);
                 }
@@ -288,9 +292,17 @@ public class ArticleServiceImpl implements ArticleService {
         notification.setUserId(currentUserId);
         notification.setTargetUserId(targetUserId);
         notification.setArticleId(id);
-        notification.setMassage(currentUsername+" 给你的文章["+articleDetail.getTitle()+"]点赞了");
-        return notificationMapper.saveNotification(notification);
+        String msg = currentUsername+" 给你的文章["+articleDetail.getTitle()+"]点赞了";
+        notification.setMassage(msg);
+        boolean b = notificationMapper.saveNotification(notification);
+        if(b){
+            System.out.println("发送消息:"+msg);
+            sseController.sendNotificationIfUserOnline(targetUserId,msg);
+        }
+        return b;
     }
+
+
 
     private boolean updateNotification(Long id,Long currentUserId,String currentUsername,String state){
         Date date = new Date();
