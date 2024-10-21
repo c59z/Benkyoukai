@@ -10,8 +10,9 @@ import router from './js/router.js';
 import mavonEditor from 'mavon-editor'
 import "mavon-editor/dist/css/index.css"
 
-import * as bootstrap from 'bootstrap';
-window.bootstrap = bootstrap;
+// 这是个干啥的代码？
+// import * as bootstrap from 'bootstrap';
+// window.bootstrap = bootstrap;
 
 
 

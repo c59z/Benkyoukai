@@ -537,7 +537,7 @@ export default {
   }
 
   .user-context {
-
+    height: 100%;
   }
 
   .tag-nav {
@@ -551,7 +551,7 @@ export default {
 
 
   .article-context {
-    height: 35rem;
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
   }
